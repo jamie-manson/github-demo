@@ -2,7 +2,7 @@
     "name": "@jamie-manson/jamiem-pokemon-github-actions-demo",
     "version": "0.0.1",
     "description": "Neil Jennings Academy (NJA) Simple pokemon app for demos and use in github",
-    "author": "Jamie Manson",
+    "author": "InfinityWorks",
     "license": "MIT",
     "main": "populatePokedex.js",
     "scripts": {
