@@ -52,6 +52,6 @@ jobs:
 
             - name: npm publish
               working-directory: ./pokemon-app
-              run: npm publish --access public
+              run: npm publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
