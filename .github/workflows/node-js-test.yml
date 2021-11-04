@@ -12,6 +12,9 @@ on:
 jobs:
     build-and-test:
         runs-on: ubuntu-latest
+        permissions:
+            packages: write
+            contents: read
 
         strategy:
             matrix:
