@@ -4,49 +4,54 @@
 name: Node.js CI and Test
 
 on:
-  push:
-    branches:
-      - '*'
-      # - '!main' # If we added this we would get all branches _except_ main
+    push:
+        branches:
+            - '*'
+            # - '!main' # If we added this we would get all branches _except_ main
 
 jobs:
-  build-and-test:
+    build-and-test:
+        runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [15.x]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    strategy:
-      matrix:
-        node-version: [15.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        steps:
+            - uses: actions/checkout@v2
 
-    steps:
-    - uses: actions/checkout@v2
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+            - name: Cache dependencies
+              uses: actions/cache@v1
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
 
-    - name: Cache dependencies
-      uses: actions/cache@v1
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+            - name: npm make package-lock if missing
+              working-directory: ./pokemon-app
+              run: npm i --package-lock-only
 
-    - name: npm make package-lock if missing
-      working-directory: ./pokemon-app
-      run: npm i --package-lock-only
+            - name: npm ci
+              working-directory: ./pokemon-app
+              run: npm ci
 
-    - name: npm ci
-      working-directory: ./pokemon-app
-      run: npm ci
+            - name: npm build
+              working-directory: ./pokemon-app
+              run: npm run build --if-present
 
-    - name: npm build
-      working-directory: ./pokemon-app
-      run: npm run build --if-present
+            - name: npm test
+              working-directory: ./pokemon-app
+              run: npm test
 
-    - name: npm test
-      working-directory: ./pokemon-app
-      run: npm test
+            - name: npm publish
+              working-directory: ./pokemon-app
+              run: npm publish --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
